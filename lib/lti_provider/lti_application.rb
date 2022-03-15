@@ -6,7 +6,7 @@ module LtiProvider
     end
 
     included do
-      before_filter :require_lti_launch
+      before_action :require_lti_launch
     end
 
     protected
