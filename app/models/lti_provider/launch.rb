@@ -79,8 +79,8 @@ module LtiProvider
           "Consumer key not provided."
         elsif provider.consumer_secret.blank?
           "Consumer secret not configured on provider."
-        # elsif !provider.valid_request?(request)
-        #   "The OAuth signature was invalid."
+        elsif !provider.valid_request?(request)
+          "The OAuth signature was invalid."
         elsif oauth_timestamp_too_old?(provider.request_oauth_timestamp)
           "Your request is too old."
         end
