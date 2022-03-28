@@ -13,7 +13,8 @@ module LtiProvider
         return show_error msg
       elsif launch.save
         session[:cookie_test] = true
-        redirect_to cookie_test_path(nonce: launch.nonce)
+        redirect_url = provider.instance_variable_get(:@custom_params)['redirect_url']
+        redirect_to cookie_test_path(nonce: launch.nonce, redirect_url: redirect_url)
       else
         return show_error "Unable to launch #{LtiProvider::XmlConfig.tool_title}. Please check your External Tools configuration and try again."
       end
@@ -39,7 +40,7 @@ module LtiProvider
 
         launch.destroy
 
-        redirect_to main_app.root_path
+        redirect_to params[:redirect_url]
       else
         return show_error "The tool was not launched successfully. Please try again."
       end
