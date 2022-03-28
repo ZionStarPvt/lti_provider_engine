@@ -1,4 +1,4 @@
 <p>
   It appears your browser is blocking cookies.  You can try
-  <%= link_to "launching the tool in a new window", consume_launch_url(nonce: params[:nonce], redirect_url: params[:redirect_url]), target: '_blank' %>.
+  <%= link_to "launching the tool in a new window", consume_launch_url + '?' + "nonce=#{params[:nonce]}&redirect_url=#{params[:redirect_url]}&#{params.permit!.to_query}", target: '_blank' %>.
 </p>
