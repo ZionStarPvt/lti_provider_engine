@@ -30,7 +30,7 @@ SUM
   s.add_development_dependency "rspec-rails-mocha"
   s.add_development_dependency "shoulda-matchers"
   s.add_development_dependency "webmock"
-  s.add_development_dependency "debugger"
+  s.add_development_dependency "byebug"
   s.add_development_dependency "guard-rspec"
   s.add_development_dependency "rb-fsevent"
 end
