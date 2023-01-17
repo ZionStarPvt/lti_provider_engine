@@ -5,7 +5,7 @@ module LtiProvider
     skip_before_action :require_lti_launch
 
     def launch
-      oauth_details = App.where(uuid: params['oauth_consumer_key']).first
+      oauth_details = LtiProviderTool.where(uuid: params['oauth_consumer_key']).first
       if oauth_details.present? && oauth_details.domain == request.env["HTTP_ORIGIN"]
         provider = IMS::LTI::ToolProvider.new(params['oauth_consumer_key'], oauth_details.shared_secret, params)
         launch = Launch.initialize_from_request(provider, request)
@@ -67,7 +67,7 @@ module LtiProvider
       session[:launch_presentation_return_url] = params[:launch_presentation_return_url]
       session[:ext_roles] = params[:ext_roles]
       session[:key] = params[:oauth_consumer_key]
-      tool_detail = App.where(uuid: session[:key]).first
+      tool_detail = LtiProviderTool.where(uuid: session[:key]).first
       session[:organization_id] = tool_detail.organization_id
       session[:canvas_user_email] = params[:lis_person_contact_email_primary]
       session[:canvas_user_current_role] = params[:roles]
