@@ -6,7 +6,8 @@ module LtiProvider
 
     def launch
       oauth_details = LtiProviderTool.where(uuid: params['oauth_consumer_key']).first
-      if oauth_details.present? && oauth_details.domain == request.env["HTTP_ORIGIN"]
+      is_valid_credential = LtiProviderTool.check_is_valid_credential(params['oauth_consumer_key'], params['custom_redirect_url'])
+      if oauth_details.present? && oauth_details.domain == request.env["HTTP_ORIGIN"] && is_valid_credential
         provider = IMS::LTI::ToolProvider.new(params['oauth_consumer_key'], oauth_details.shared_secret, params)
         launch = Launch.initialize_from_request(provider, request)
 
