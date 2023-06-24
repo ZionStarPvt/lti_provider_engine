@@ -19,7 +19,7 @@ SUM
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.md"]
   s.test_files = Dir["spec/**/*"]
 
-  s.add_dependency "rails", '~>7.0.3'
+  s.add_dependency "rails", '>=6.1.1'
   s.add_dependency 'ims-lti'
 
   s.add_development_dependency "sqlite3"
