@@ -5,18 +5,24 @@ module LtiProvider
     skip_before_action :require_lti_launch
 
     def launch
-      provider = IMS::LTI::ToolProvider.new(params['oauth_consumer_key'], LtiProvider::Config.secret, params)
-      launch = Launch.initialize_from_request(provider, request)
+      oauth_details = LtiProviderTool.where(uuid: params['oauth_consumer_key']).first
+      is_valid_credential = LtiProviderTool.check_is_valid_credential(params['oauth_consumer_key'], params['custom_redirect_url'])
+      if oauth_details.present? && oauth_details.domain == request.env["HTTP_ORIGIN"] && is_valid_credential
+        provider = IMS::LTI::ToolProvider.new(params['oauth_consumer_key'], oauth_details.shared_secret, params)
+        launch = Launch.initialize_from_request(provider, request)
 
-      if !launch.valid_provider?
-        msg = "#{launch.lti_errormsg} Please be sure you are launching this tool from the link provided in Canvas."
-        return show_error msg
-      elsif launch.save
-        session[:cookie_test] = true
-        redirect_url = provider.instance_variable_get(:@custom_params)['redirect_url']
-        redirect_to cookie_test_url + '?' + "nonce=#{launch.nonce}&redirect_url=#{redirect_url}&#{params.permit!.to_query}"
+        if !launch.valid_provider?
+          msg = "#{launch.lti_errormsg} Please be sure you are launching this tool from the link provided in Canvas."
+          return show_error msg
+        elsif launch.save
+          session[:cookie_test] = true
+          redirect_url = provider.instance_variable_get(:@custom_params)['redirect_url']
+          redirect_to cookie_test_url + '?' + "nonce=#{launch.nonce}&redirect_url=#{redirect_url}&#{params.permit!.to_query}"
+        else
+          return show_error "Unable to launch #{LtiProvider::XmlConfig.tool_title}. Please check your External Tools configuration and try again."
+        end
       else
-        return show_error "Unable to launch #{LtiProvider::XmlConfig.tool_title}. Please check your External Tools configuration and try again."
+        redirect_to "#{request.base_url}/invalid_credential"
       end
     end
 
@@ -61,6 +67,11 @@ module LtiProvider
       session[:canvas_course_id] = params[:custom_canvas_course_id]
       session[:launch_presentation_return_url] = params[:launch_presentation_return_url]
       session[:ext_roles] = params[:ext_roles]
+      session[:key] = params[:oauth_consumer_key]
+      tool_detail = LtiProviderTool.where(uuid: session[:key]).first
+      session[:organization_id] = tool_detail.organization_id
+      session[:canvas_user_email] = params[:lis_person_contact_email_primary]
+      session[:canvas_user_current_role] = params[:roles]
     end
 
     protected
